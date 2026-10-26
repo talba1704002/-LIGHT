@@ -12,17 +12,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Unpack Android project
-        run: |
-          mkdir -p project
-          unzip -q -o TalhaLight-project-v3.zip -d project
-          if [ -f project/settings.gradle ]; then
-            echo "PROJECT_DIR=project" >> "$GITHUB_ENV"
-          else
-            SUB=$(dirname "$(find project -maxdepth 3 -name settings.gradle | head -n 1)")
-            echo "PROJECT_DIR=$SUB" >> "$GITHUB_ENV"
-          fi
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -35,11 +24,10 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build signed release APK
-        working-directory: ${{ env.PROJECT_DIR }}
         run: gradle --no-daemon assembleRelease
 
       - name: Rename APK
-        run: cp "$PROJECT_DIR/app/build/outputs/apk/release/app-release.apk" TalhaLight.apk
+        run: cp app/build/outputs/apk/release/app-release.apk TalhaLight.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
